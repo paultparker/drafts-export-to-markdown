@@ -69,7 +69,9 @@ if (app.isDraftListVisible) {
 
                 if (fmBk.exists(filename)) {
                     let fileModDate = fmBk.getModificationDate(filename);
-                    if (dft.modifiedAt <= fileModDate) {
+                    let draftSec = Math.floor(dft.modifiedAt.getTime() / 1000);
+                    let fileSec = Math.floor(fileModDate.getTime() / 1000);
+                    if (draftSec <= fileSec) {
                         skipped++;
                         return;
                     }
