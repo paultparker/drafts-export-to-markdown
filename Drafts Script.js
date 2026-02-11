@@ -57,6 +57,10 @@ if (app.isDraftListVisible) {
         let proceed = p.show();
 
         if (proceed) {
+            let startTime = new Date();
+            console.log("Export started at " + startTime.toLocaleString());
+            console.log("Drafts to process: " + draftsGroup.length);
+
             export_tag = "exported-" + Date.now()
             let written = 0, skipped = 0;
             draftsGroup.forEach(function(dft) {
@@ -81,7 +85,33 @@ if (app.isDraftListVisible) {
                     dft.update();
                 }
             });
-            app.displayInfoMessage("Exported " + written + " draft(s), skipped " + skipped + " unchanged.");
+
+            let endTime = new Date();
+            let elapsedSec = Math.round((endTime - startTime) / 1000);
+            let elapsedMin = Math.floor(elapsedSec / 60);
+            let remainSec = elapsedSec % 60;
+            let elapsed = elapsedMin > 0 ? elapsedMin + "m " + remainSec + "s" : elapsedSec + "s";
+
+            let summary = "Exported " + written + " draft(s), skipped " + skipped + " unchanged.\nElapsed: " + elapsed;
+            console.log(summary);
+            console.log("Export finished at " + endTime.toLocaleString());
+
+            let metadata = {
+                lastExport: endTime.toISOString(),
+                draftsProcessed: draftsGroup.length,
+                written: written,
+                skipped: skipped,
+                elapsedSeconds: elapsedSec
+            };
+            fmBk.writeString(".export-metadata.json", JSON.stringify(metadata, null, 2));
+
+            app.displayInfoMessage(summary);
+
+            let done = Prompt.create();
+            done.title = "Export complete";
+            done.message = summary;
+            done.addButton("OK");
+            done.show();
         } else {
             context.cancel("User canceled");
         }
