@@ -21,16 +21,18 @@ Scripts in Drafts are JavaScript (ECMAScript 6) running on JavaScriptCore. Draft
 
 1. Guard: aborts if the draft list isn't visible (safety check)
 2. Queries the current workspace's "inbox" for all drafts
-3. Checks for titles exceeding `max_title_length` (190 chars)
-4. Shows two confirmation prompts (overlong warning, then title preview)
-5. Exports each draft as `{optional-ISO-date} {uuid}-{safe_title}.md` to the "Export pit" Bookmark directory, preserving creation/modification dates
+3. Shows a confirmation prompt with a preview of the first 10 titles
+4. Exports each draft as `{optional-ISO-date} {uuid}-{safe_title}.md` to the "Export pit" Bookmark directory, preserving creation/modification dates. Titles are truncated to fit within `max_title_length`.
+5. Skips unchanged drafts: compares `dft.modifiedAt` against the existing file's modification date (at second granularity) and only rewrites files where the draft is newer
 6. Optionally tags exported drafts with a timestamped tag (`tag_when_done`)
+7. Writes `.export-metadata.json` to the export directory with last export timestamp, counts, and elapsed time
+8. Logs start/end times and summary to Action Log, and shows a modal summary dialog
 
 ## Drafts API Objects Used
 
 - `Bookmark` / `FileManager` — file system access via Drafts bookmarks
 - `Prompt` — native UI dialogs
-- `app` — application context (workspace, draft list visibility)
+- `app` — application context (`currentWindow`, `currentWorkspace`)
 - `context` — action lifecycle (cancel/fail)
 - `script` — marks action completion
 - Draft objects (`dft`) — content, metadata, tags, `processTemplate()`
@@ -39,5 +41,5 @@ Scripts in Drafts are JavaScript (ECMAScript 6) running on JavaScriptCore. Draft
 
 Top-of-file constants (lines 1–4):
 - `tag_when_done` — tag drafts after export (default: `false`)
-- `max_title_length` — filename length cap (default: `190`)
+- `max_title_length` — total filename length cap including date prefix and `.md` extension (default: `190`)
 - `prefix_iso_date` — prepend ISO date to filenames (default: `true`)
