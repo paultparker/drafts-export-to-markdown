@@ -58,17 +58,30 @@ if (app.isDraftListVisible) {
 
         if (proceed) {
             export_tag = "exported-" + Date.now()
+            let written = 0, skipped = 0;
             draftsGroup.forEach(function(dft) {
                 title = export_title(dft);
                 filename = title + '.md';
+
+                if (fmBk.exists(filename)) {
+                    let fileModDate = fmBk.getModificationDate(filename);
+                    if (dft.modifiedAt <= fileModDate) {
+                        skipped++;
+                        return;
+                    }
+                }
+
                 fmBk.writeString(filename, dft.content);
                 fmBk.setCreationDate(filename, dft.createdAt);
                 fmBk.setModificationDate(filename, dft.modifiedAt);
+                written++;
+
                 if (tag_when_done) {
                     dft.addTag(export_tag);
                     dft.update();
                 }
             });
+            app.displayInfoMessage("Exported " + written + " draft(s), skipped " + skipped + " unchanged.");
         } else {
             context.cancel("User canceled");
         }
