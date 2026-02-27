@@ -18,7 +18,11 @@ if (app.currentWindow.isDraftListVisible) {
     let bk = Bookmark.findOrCreate("Export pit")
     let fmBk = FileManager.createForBookmark(bk);
 
-    let draftsGroup = app.currentWorkspace.query("inbox");
+    let sixMonthsAgo = new Date();
+    sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 6);
+    let draftsGroup = app.currentWorkspace.query("inbox").filter(function(dft) {
+        return dft.modifiedAt >= sixMonthsAgo;
+    });
 
     // Get the ok
     let subsetLength = Math.min(draftsGroup.length, 10);
