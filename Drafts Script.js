@@ -39,7 +39,7 @@ if (app.currentWindow.isDraftListVisible) {
 
     let p = Prompt.create();
     p.title = "Export " + draftsGroup.length + " draft" + (draftsGroup.length === 1 ? "" : "s") + "?";
-    p.message = previewTitles + more;
+    p.message = previewTitles + more + "\n\n⌘ enter to approve; space to cancel.";
     p.addButton("Export", undefined, true);
     p.isCancellable = true;
 
@@ -106,7 +106,7 @@ if (app.currentWindow.isDraftListVisible) {
         }
         let warning = warnings.length > 0 ? "\n" + warnings.join("\n") : "\n✅ Counts look plausible";
 
-        let summary = counts + warning + "\n\n⏱ " + elapsed + " elapsed";
+        let summary = counts + warning + "\n\n⏱ " + elapsed + " elapsed\n\n⌘ enter to approve; space to cancel.";
         console.log(summary);
         console.log("Export finished at " + endTime.toLocaleString());
 
