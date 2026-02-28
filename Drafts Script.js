@@ -52,6 +52,10 @@ if (app.currentWindow.isDraftListVisible) {
         console.log("Export started at " + startTime.toLocaleString());
         console.log("Drafts to process: " + draftsGroup.length);
 
+        let filesBefore = fmBk.listContents("/").filter(function(f) {
+            return /[0-9A-F]{8}\.md$/i.test(f);
+        }).length;
+
         export_tag = "exported-" + Date.now()
         let written = 0;
         draftsGroup.forEach(function(dft) {
@@ -77,18 +81,19 @@ if (app.currentWindow.isDraftListVisible) {
 
         let inboxCount = Draft.query("", "inbox").length;
         let allCount = inboxCount + Draft.query("", "flagged").length + Draft.query("", "archive").length;
-        let fileCount = fmBk.listContents("/").filter(function(f) {
+        let filesAfter = fmBk.listContents("/").filter(function(f) {
             return /[0-9A-F]{8}\.md$/i.test(f);
         }).length;
+        let netNew = filesAfter - filesBefore;
 
-        let counts = "📁 " + fileCount + " files · " + inboxCount + " inbox · " + allCount + " total drafts";
+        let counts = "📁 " + filesAfter + " files (" + (netNew >= 0 ? "+" : "") + netNew + " new) · " + inboxCount + " inbox · " + allCount + " total drafts";
         let warning = "";
-        if (fileCount === 0 && written > 0) {
+        if (filesAfter === 0 && written > 0) {
             warning = "\n⚠ No files detected — check bookmark path";
-        } else if (fileCount > allCount) {
+        } else if (filesAfter > allCount) {
             warning = "\n⚠ More files than drafts — possible stale exports";
-        } else if (fileCount < inboxCount * 0.9) {
-            warning = "\n⚠ Files well below inbox count — some drafts may not have exported";
+        } else if (filesAfter < inboxCount * 0.999) {
+            warning = "\n⚠ Files below inbox count — some drafts may not have exported";
         } else {
             warning = "\n✅ Counts look plausible";
         }
