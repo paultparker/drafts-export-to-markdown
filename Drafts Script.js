@@ -8,7 +8,10 @@ function export_title(dft) {
     if (!safe_title) {
         return uuid8;
     }
-    let words = safe_title.split(/\s+/).slice(0, 4).join('-').toLowerCase();
+    let words = safe_title.split(/\s+/).slice(0, 4).join('-').toLowerCase().replace(/^\.+/, '');
+    if (!words) {
+        return uuid8;
+    }
     return words + '-' + uuid8;
 }
 
