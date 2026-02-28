@@ -42,7 +42,7 @@ if (app.currentWindow.isDraftListVisible) {
     let p = Prompt.create();
     p.title = "Export confirmation";
     p.message = "About to export " + draftsGroup.length + " draft(s). Titles include: \n\n" + preview_titles;
-    p.addButton("Export");
+    p.addButton("Export", undefined, true);
     p.isCancellable = true;
 
     let proceed = p.show();
@@ -125,7 +125,7 @@ if (app.currentWindow.isDraftListVisible) {
         let done = Prompt.create();
         done.title = "Export complete";
         done.message = summary;
-        done.addButton("OK");
+        done.addButton("OK", undefined, true);
         done.show();
     } else {
         context.cancel("User canceled");
