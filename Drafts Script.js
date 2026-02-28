@@ -73,7 +73,7 @@ if (app.currentWindow.isDraftListVisible) {
         let elapsed = elapsedMin > 0 ? elapsedMin + "m " + remainSec + "s" : elapsedSec + "s";
 
         let allDrafts = Draft.query("", "inbox").concat(Draft.query("", "flagged"), Draft.query("", "archive"));
-        let uuidPattern = /^[\w-]+-[0-9A-F]{8}\.md$/i;
+        let uuidPattern = /[0-9A-F]{8}\.md$/i;
         let files = fmBk.listContents("/").filter(function(f) {
             return uuidPattern.test(f);
         });
