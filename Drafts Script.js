@@ -75,17 +75,25 @@ if (app.currentWindow.isDraftListVisible) {
         let remainSec = elapsedSec % 60;
         let elapsed = elapsedMin > 0 ? elapsedMin + "m " + remainSec + "s" : elapsedSec + "s";
 
-        let allDrafts = Draft.query("", "inbox").concat(Draft.query("", "flagged"), Draft.query("", "archive"));
-        let uuidPattern = /[0-9A-F]{8}\.md$/i;
-        let files = fmBk.listContents("/").filter(function(f) {
-            return uuidPattern.test(f);
-        });
-        let countWarning = "";
-        if (files.length !== allDrafts.length) {
-            countWarning = "\n⚠ File count (" + files.length + ") ≠ draft count (" + allDrafts.length + ")";
+        let inboxCount = Draft.query("", "inbox").length;
+        let allCount = inboxCount + Draft.query("", "flagged").length + Draft.query("", "archive").length;
+        let fileCount = fmBk.listContents("/").filter(function(f) {
+            return /[0-9A-F]{8}\.md$/i.test(f);
+        }).length;
+
+        let counts = "📁 " + fileCount + " files · " + inboxCount + " inbox · " + allCount + " total drafts";
+        let warning = "";
+        if (fileCount === 0 && written > 0) {
+            warning = "\n⚠ No files detected — check bookmark path";
+        } else if (fileCount > allCount) {
+            warning = "\n⚠ More files than drafts — possible stale exports";
+        } else if (fileCount < inboxCount * 0.9) {
+            warning = "\n⚠ Files well below inbox count — some drafts may not have exported";
+        } else {
+            warning = "\n✓ Counts look plausible";
         }
 
-        let summary = "Exported " + written + " draft(s).\nElapsed: " + elapsed + countWarning;
+        let summary = "Exported " + written + " draft(s) in " + elapsed + "\n" + counts + warning;
         console.log(summary);
         console.log("Export finished at " + endTime.toLocaleString());
 
