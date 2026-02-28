@@ -106,7 +106,7 @@ if (app.currentWindow.isDraftListVisible) {
         }
         let warning = warnings.length > 0 ? "\n" + warnings.join("\n") : "\n✅ Counts look plausible";
 
-        let summary = counts + warning + "\n\n⏱ " + elapsed;
+        let summary = counts + warning + "\n\n⏱ " + elapsed + " elapsed";
         console.log(summary);
         console.log("Export finished at " + endTime.toLocaleString());
 
