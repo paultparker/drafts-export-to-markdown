@@ -20,8 +20,8 @@ Scripts in Drafts are JavaScript (ECMAScript 6) running on JavaScriptCore. Draft
 ### Files
 
 - **`Drafts Script.js`** — the main export script, run as a Drafts Action step
-- **`export-if-idle.sh`** — shell wrapper that checks macOS idle time (5+ min) before triggering the silent export via URL scheme
-- **`~/Library/LaunchAgents/com.paulparker.drafts-export.plist`** — launchd agent that runs `export-if-idle.sh` daily at 5am
+- **`export-daily.sh`** — shell wrapper that triggers the silent export via URL scheme
+- **`~/Library/LaunchAgents/com.paulparker.drafts-export.plist`** — launchd agent that runs `export-daily.sh` daily at 5am
 
 ### Drafts Actions
 
