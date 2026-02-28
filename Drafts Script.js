@@ -86,7 +86,7 @@ if (app.currentWindow.isDraftListVisible) {
         }).length;
         let netNew = filesAfter - filesBefore;
 
-        let counts = "📁 " + filesBefore + " before + " + netNew + " new ≥ " + filesAfter + " files · " + inboxCount + " inbox · " + allCount + " total drafts";
+        let counts = "📁 " + filesBefore + " before + " + netNew + " new ≥ " + filesAfter + " files\n🗒 " + inboxCount + " inbox · " + allCount + " total drafts";
         let warning = "";
         if (filesAfter === 0 && written > 0) {
             warning = "\n🚨 No files detected — check bookmark path";
