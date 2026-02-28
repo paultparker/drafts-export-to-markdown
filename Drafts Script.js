@@ -90,7 +90,7 @@ if (app.currentWindow.isDraftListVisible) {
         } else if (fileCount < inboxCount * 0.9) {
             warning = "\n⚠ Files well below inbox count — some drafts may not have exported";
         } else {
-            warning = "\n✓ Counts look plausible";
+            warning = "\n✅ Counts look plausible";
         }
 
         let summary = "Exported " + written + " draft(s) in " + elapsed + "\n" + counts + warning;
