@@ -31,17 +31,15 @@ if (app.currentWindow.isDraftListVisible) {
         return dft.modifiedAt >= cutoff;
     });
 
-    // Get the ok
-    let subsetLength = Math.min(draftsGroup.length, 10);
-    let subset = draftsGroup.slice(0, subsetLength);
-    let subset_titles = subset.map(function(dft) {
-        return export_title(dft);
-    });
-    let preview_titles = subset_titles.join("\n")
+    let previewCount = Math.min(draftsGroup.length, 5);
+    let previewTitles = draftsGroup.slice(0, previewCount).map(function(dft) {
+        return "  · " + export_title(dft);
+    }).join("\n");
+    let more = draftsGroup.length > previewCount ? "\n  … and " + (draftsGroup.length - previewCount) + " more" : "";
 
     let p = Prompt.create();
-    p.title = "Export confirmation";
-    p.message = "About to export " + draftsGroup.length + " draft" + (draftsGroup.length === 1 ? "" : "s") + ". Titles include: \n\n" + preview_titles;
+    p.title = "Export " + draftsGroup.length + " draft" + (draftsGroup.length === 1 ? "" : "s") + "?";
+    p.message = previewTitles + more;
     p.addButton("Export", undefined, true);
     p.isCancellable = true;
 
