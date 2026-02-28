@@ -1,5 +1,6 @@
 // Settings
 const tag_when_done = false; // handy, but counts as a draft modification
+const silent = draft.processTemplate("[[silent]]") === "true";
 
 // Script
 function export_title(dft) {
@@ -31,19 +32,21 @@ if (app.currentWindow.isDraftListVisible) {
         return dft.modifiedAt >= cutoff;
     });
 
-    let previewCount = Math.min(draftsGroup.length, 5);
-    let previewTitles = draftsGroup.slice(0, previewCount).map(function(dft) {
-        return "  · " + export_title(dft);
-    }).join("\n");
-    let more = draftsGroup.length > previewCount ? "\n  … and " + (draftsGroup.length - previewCount) + " more" : "";
+    let proceed = true;
+    if (!silent) {
+        let previewCount = Math.min(draftsGroup.length, 5);
+        let previewTitles = draftsGroup.slice(0, previewCount).map(function(dft) {
+            return "  · " + export_title(dft);
+        }).join("\n");
+        let more = draftsGroup.length > previewCount ? "\n  … and " + (draftsGroup.length - previewCount) + " more" : "";
 
-    let p = Prompt.create();
-    p.title = "Export " + draftsGroup.length + " draft" + (draftsGroup.length === 1 ? "" : "s") + "?";
-    p.message = previewTitles + more + "\n\n⌘ enter to approve; space to cancel.";
-    p.addButton("Export", undefined, true);
-    p.isCancellable = true;
-
-    let proceed = p.show();
+        let p = Prompt.create();
+        p.title = "Export " + draftsGroup.length + " draft" + (draftsGroup.length === 1 ? "" : "s") + "?";
+        p.message = previewTitles + more + "\n\n⌘ enter to approve; space to cancel.";
+        p.addButton("Export", undefined, true);
+        p.isCancellable = true;
+        proceed = p.show();
+    }
 
     if (proceed) {
         let startTime = new Date();
@@ -106,7 +109,7 @@ if (app.currentWindow.isDraftListVisible) {
         }
         let warning = warnings.length > 0 ? "\n" + warnings.join("\n") : "\n✅ Counts look plausible";
 
-        let summary = counts + warning + "\n\n⏱ " + elapsed + " elapsed\n\n⌘ enter to approve; space to cancel.";
+        let summary = counts + warning + "\n\n⏱ " + elapsed + " elapsed";
         console.log(summary);
         console.log("Export finished at " + endTime.toLocaleString());
 
@@ -118,13 +121,15 @@ if (app.currentWindow.isDraftListVisible) {
         };
         fmBk.writeString(".export-metadata.json", JSON.stringify(metadata, null, 2));
 
-        app.displayInfoMessage(summary);
+        if (!silent) {
+            app.displayInfoMessage(summary);
 
-        let done = Prompt.create();
-        done.title = "Exported " + written + " draft" + (written === 1 ? "" : "s");
-        done.message = summary;
-        done.addButton("OK", undefined, true);
-        done.show();
+            let done = Prompt.create();
+            done.title = "Exported " + written + " draft" + (written === 1 ? "" : "s");
+            done.message = summary;
+            done.addButton("OK", undefined, true);
+            done.show();
+        }
     } else {
         context.cancel("User canceled");
     }
