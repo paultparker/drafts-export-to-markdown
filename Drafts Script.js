@@ -108,8 +108,7 @@ if (app.currentWindow.isDraftListVisible) {
         }
         let warning = warnings.length > 0 ? "\n" + warnings.join("\n") : "\n✅ Counts look plausible";
 
-        let rule = "────────────────────────────────────";
-        let summary = rule + "\n📤 Exported ✦" + written + "✦ draft(s)\n" + rule + "\n\n" + counts + warning + "\n\n⏱ " + elapsed;
+        let summary = counts + warning + "\n\n⏱ " + elapsed;
         console.log(summary);
         console.log("Export finished at " + endTime.toLocaleString());
 
@@ -124,7 +123,7 @@ if (app.currentWindow.isDraftListVisible) {
         app.displayInfoMessage(summary);
 
         let done = Prompt.create();
-        done.title = "Export complete";
+        done.title = "Exported " + written + " draft(s)";
         done.message = summary;
         done.addButton("OK", undefined, true);
         done.show();
