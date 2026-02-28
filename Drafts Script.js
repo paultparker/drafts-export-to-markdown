@@ -78,7 +78,17 @@ if (app.currentWindow.isDraftListVisible) {
         let remainSec = elapsedSec % 60;
         let elapsed = elapsedMin > 0 ? elapsedMin + "m " + remainSec + "s" : elapsedSec + "s";
 
-        let summary = "Exported " + written + " draft(s), skipped " + skipped + " unchanged.\nElapsed: " + elapsed;
+        let allDrafts = Draft.query("", "inbox").concat(Draft.query("", "flagged"), Draft.query("", "archive"));
+        let uuidPattern = /[0-9A-F]{8}-[0-9A-F]{4}-[0-9A-F]{4}-[0-9A-F]{4}-[0-9A-F]{12}/i;
+        let files = fmBk.listContents("/").filter(function(f) {
+            return f.endsWith(".md") && uuidPattern.test(f);
+        });
+        let countWarning = "";
+        if (files.length !== allDrafts.length) {
+            countWarning = "\n⚠ File count (" + files.length + ") ≠ draft count (" + allDrafts.length + ")";
+        }
+
+        let summary = "Exported " + written + " draft(s), skipped " + skipped + " unchanged.\nElapsed: " + elapsed + countWarning;
         console.log(summary);
         console.log("Export finished at " + endTime.toLocaleString());
 
