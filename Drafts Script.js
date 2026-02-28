@@ -1,17 +1,15 @@
 // Settings
 const tag_when_done = false; // handy, but counts as a draft modification
-const max_title_length = 190;
-const prefix_iso_date = true;
 
 // Script
 function export_title(dft) {
-    let iso_date = prefix_iso_date ? dft.processTemplate('[[modified|%Y-%m-%d]] ') : "";
-    let uuid_title = dft.processTemplate('[[uuid]]-[[safe_title]]');
-    let max_uuid_title = max_title_length - iso_date.length - 3; // 3 for ".md"
-    if (uuid_title.length > max_uuid_title) {
-        uuid_title = uuid_title.substring(0, max_uuid_title);
+    let safe_title = dft.processTemplate('[[safe_title]]').trim();
+    let uuid8 = dft.processTemplate('[[uuid]]').substring(0, 8).toUpperCase();
+    if (!safe_title) {
+        return uuid8;
     }
-    return iso_date + uuid_title;
+    let words = safe_title.split(/\s+/).slice(0, 4).join('-').toLowerCase();
+    return words + '-' + uuid8;
 }
 
 if (app.currentWindow.isDraftListVisible) {
@@ -25,7 +23,7 @@ if (app.currentWindow.isDraftListVisible) {
             lastExport = new Date(meta.lastExport);
         }
     }
-    let cutoff = lastExport || new Date(Date.now() - 6 * 30 * 24 * 60 * 60 * 1000);
+    let cutoff = lastExport || new Date(0);
     let draftsGroup = app.currentWorkspace.query("inbox").filter(function(dft) {
         return dft.modifiedAt >= cutoff;
     });
@@ -75,9 +73,9 @@ if (app.currentWindow.isDraftListVisible) {
         let elapsed = elapsedMin > 0 ? elapsedMin + "m " + remainSec + "s" : elapsedSec + "s";
 
         let allDrafts = Draft.query("", "inbox").concat(Draft.query("", "flagged"), Draft.query("", "archive"));
-        let uuidPattern = /[0-9A-F]{8}-[0-9A-F]{4}-[0-9A-F]{4}-[0-9A-F]{4}-[0-9A-F]{12}/i;
+        let uuidPattern = /^[\w-]+-[0-9A-F]{8}\.md$/i;
         let files = fmBk.listContents("/").filter(function(f) {
-            return f.endsWith(".md") && uuidPattern.test(f);
+            return uuidPattern.test(f);
         });
         let countWarning = "";
         if (files.length !== allDrafts.length) {

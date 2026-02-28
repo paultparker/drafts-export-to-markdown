@@ -22,7 +22,7 @@ Scripts in Drafts are JavaScript (ECMAScript 6) running on JavaScriptCore. Draft
 1. Guard: aborts if the draft list isn't visible (safety check)
 2. Queries the current workspace's "inbox" for all drafts
 3. Shows a confirmation prompt with a preview of the first 10 titles
-4. Exports each draft as `{optional-ISO-date} {uuid}-{safe_title}.md` to the "Export pit" Bookmark directory, preserving creation/modification dates. Titles are truncated to fit within `max_title_length`.
+4. Exports each draft as `{first-4-words}-{UUID8}.md` to the "Export pit" Bookmark directory, preserving creation/modification dates. Words are lowercased and joined with dashes; UUID8 is the first 8 hex chars of the draft UUID (uppercase).
 5. Skips unchanged drafts: compares `dft.modifiedAt` against the existing file's modification date (at second granularity) and only rewrites files where the draft is newer
 6. Optionally tags exported drafts with a timestamped tag (`tag_when_done`)
 7. Writes `.export-metadata.json` to the export directory with last export timestamp, counts, and elapsed time
@@ -39,7 +39,5 @@ Scripts in Drafts are JavaScript (ECMAScript 6) running on JavaScriptCore. Draft
 
 ## Configuration
 
-Top-of-file constants (lines 1–4):
+Top-of-file constant (line 2):
 - `tag_when_done` — tag drafts after export (default: `false`)
-- `max_title_length` — total filename length cap including date prefix and `.md` extension (default: `190`)
-- `prefix_iso_date` — prepend ISO date to filenames (default: `true`)
