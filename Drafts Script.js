@@ -108,10 +108,8 @@ if (app.currentWindow.isDraftListVisible) {
         }
         let warning = warnings.length > 0 ? "\n" + warnings.join("\n") : "\n✅ Counts look plausible";
 
-        let exportLine = "📤 Exported ✦" + written + "✦ draft(s)";
-        let pad = "─".repeat(exportLine.length + 2);
-        let box = "┌" + pad + "┐\n│ " + exportLine + " │\n└" + pad + "┘";
-        let summary = box + "\n\n" + counts + warning + "\n\n⏱ " + elapsed;
+        let rule = "────────────────────────────────────";
+        let summary = rule + "\n📤 Exported ✦" + written + "✦ draft(s)\n" + rule + "\n\n" + counts + warning + "\n\n⏱ " + elapsed;
         console.log(summary);
         console.log("Export finished at " + endTime.toLocaleString());
 
