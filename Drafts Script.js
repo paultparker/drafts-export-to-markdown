@@ -41,7 +41,7 @@ if (app.currentWindow.isDraftListVisible) {
 
     let p = Prompt.create();
     p.title = "Export confirmation";
-    p.message = "About to export " + draftsGroup.length + " draft(s). Titles include: \n\n" + preview_titles;
+    p.message = "About to export " + draftsGroup.length + " draft" + (draftsGroup.length === 1 ? "" : "s") + ". Titles include: \n\n" + preview_titles;
     p.addButton("Export", undefined, true);
     p.isCancellable = true;
 
@@ -123,7 +123,7 @@ if (app.currentWindow.isDraftListVisible) {
         app.displayInfoMessage(summary);
 
         let done = Prompt.create();
-        done.title = "Exported " + written + " draft(s)";
+        done.title = "Exported " + written + " draft" + (written === 1 ? "" : "s");
         done.message = summary;
         done.addButton("OK", undefined, true);
         done.show();
