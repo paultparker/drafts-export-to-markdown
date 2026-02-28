@@ -89,11 +89,11 @@ if (app.currentWindow.isDraftListVisible) {
         let counts = "📁 " + filesBefore + " before + " + netNew + " new ≥ " + filesAfter + " files · " + inboxCount + " inbox · " + allCount + " total drafts";
         let warning = "";
         if (filesAfter === 0 && written > 0) {
-            warning = "\n⚠ No files detected — check bookmark path";
+            warning = "\n🚨 No files detected — check bookmark path";
         } else if (filesAfter > allCount) {
-            warning = "\n⚠ More files than drafts — possible stale exports";
+            warning = "\n🚨 More files than drafts — possible stale exports";
         } else if (filesAfter < inboxCount * 0.999) {
-            warning = "\n⚠ Files below inbox count — some drafts may not have exported";
+            warning = "\n🚨 Files below inbox count — some drafts may not have exported";
         } else {
             warning = "\n✅ Counts look plausible";
         }
