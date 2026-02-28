@@ -17,16 +17,43 @@ Scripts in Drafts are JavaScript (ECMAScript 6) running on JavaScriptCore. Draft
 
 ## Architecture
 
-**`Drafts Script.js`** — the entire project. Flow:
+### Files
+
+- **`Drafts Script.js`** — the main export script, run as a Drafts Action step
+- **`export-if-idle.sh`** — shell wrapper that checks macOS idle time (5+ min) before triggering the silent export via URL scheme
+- **`~/Library/LaunchAgents/com.paulparker.drafts-export.plist`** — launchd agent that runs `export-if-idle.sh` daily at 5am
+
+### Drafts Actions
+
+- **Export all drafts to files** — the main action containing `Drafts Script.js`
+- **Export drafts (silent)** — wrapper action that sets `[[silent]]` template tag to `true`, then includes the main action. Used by Shortcuts and the launchd agent.
+
+### Script Flow
 
 1. Guard: aborts if the draft list isn't visible (safety check)
-2. Queries the current workspace's "inbox" for all drafts
-3. Shows a confirmation prompt with a preview of the first 10 titles
-4. Exports each draft as `{first-4-words}-{UUID8}.md` to the "Export pit" Bookmark directory, preserving creation/modification dates. Words are lowercased and joined with dashes; UUID8 is the first 8 hex chars of the draft UUID (uppercase).
-5. Skips unchanged drafts: compares `dft.modifiedAt` against the existing file's modification date (at second granularity) and only rewrites files where the draft is newer
+2. Queries the current workspace's "inbox" for drafts modified since last export
+3. Unless silent: shows a confirmation prompt with a preview of the first 5 titles
+4. Counts files before export, then exports each draft as `{first-4-words}-{UUID8}.md` to the "Export pit" Bookmark directory, preserving creation/modification dates
+5. Counts files after export and runs plausibility heuristics comparing file counts against inbox and total draft counts
 6. Optionally tags exported drafts with a timestamped tag (`tag_when_done`)
-7. Writes `.export-metadata.json` to the export directory with last export timestamp, counts, and elapsed time
-8. Logs start/end times and summary to Action Log, and shows a modal summary dialog
+7. Writes `.export-metadata.json` with last export timestamp, counts, and elapsed time
+8. Unless silent: shows a summary dialog with file counts, warnings, and elapsed time
+
+### Filename Format
+
+`{first-4-words}-{UUID8}.md` — first 4 words of `[[safe_title]]`, lowercased and joined with dashes, followed by the first 8 hex chars of the draft UUID (uppercase). Leading dots are stripped to prevent hidden files. Empty titles fall back to `{UUID8}.md`.
+
+### Plausibility Checks
+
+After export, six heuristics flag implausible counts with 🚨 warnings:
+- Zero files after writing — bookmark path broken
+- Files decreased during export — files disappeared
+- Net new exceeds written — unexpected files in directory
+- Fresh export shortfall (files < 99.9% of written) — write failures
+- More files than total drafts — stale exports accumulating
+- Files below 99.9% of inbox count — drafts missing
+
+All passing → ✅ "Counts look plausible"
 
 ## Drafts API Objects Used
 
@@ -39,5 +66,6 @@ Scripts in Drafts are JavaScript (ECMAScript 6) running on JavaScriptCore. Draft
 
 ## Configuration
 
-Top-of-file constant (line 2):
+Top-of-file constants:
 - `tag_when_done` — tag drafts after export (default: `false`)
+- `silent` — set via `[[silent]]` template tag; skips confirmation and completion dialogs (used by Shortcuts/automation)
