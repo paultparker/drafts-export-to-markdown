@@ -87,16 +87,26 @@ if (app.currentWindow.isDraftListVisible) {
         let netNew = filesAfter - filesBefore;
 
         let counts = "📁 " + filesBefore + " files before + " + written + " written ≥ " + filesAfter + " files now\n📓 " + inboxCount + " inbox · " + allCount + " total drafts";
-        let warning = "";
+        let warnings = [];
         if (filesAfter === 0 && written > 0) {
-            warning = "\n🚨 No files detected — check bookmark path";
-        } else if (filesAfter > allCount) {
-            warning = "\n🚨 More files than drafts — possible stale exports";
-        } else if (filesAfter < inboxCount * 0.999) {
-            warning = "\n🚨 Files below inbox count — some drafts may not have exported";
-        } else {
-            warning = "\n✅ Counts look plausible";
+            warnings.push("🚨 No files detected — check bookmark path");
         }
+        if (filesAfter < filesBefore) {
+            warnings.push("🚨 Files disappeared during export");
+        }
+        if (netNew > written) {
+            warnings.push("🚨 More new files than written — unexpected files in directory");
+        }
+        if (filesBefore === 0 && filesAfter < written * 0.999) {
+            warnings.push("🚨 Fresh export but far fewer files than written");
+        }
+        if (filesAfter > allCount) {
+            warnings.push("🚨 More files than drafts — possible stale exports");
+        }
+        if (filesAfter < inboxCount * 0.999) {
+            warnings.push("🚨 Files below inbox count — some drafts may not have exported");
+        }
+        let warning = warnings.length > 0 ? "\n" + warnings.join("\n") : "\n✅ Counts look plausible";
 
         let summary = "Exported " + written + " draft(s) in " + elapsed + "\n" + counts + warning;
         console.log(summary);
