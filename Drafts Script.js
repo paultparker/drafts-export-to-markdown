@@ -18,10 +18,16 @@ if (app.currentWindow.isDraftListVisible) {
     let bk = Bookmark.findOrCreate("Export pit")
     let fmBk = FileManager.createForBookmark(bk);
 
-    let sixMonthsAgo = new Date();
-    sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 6);
+    let lastExport = null;
+    if (fmBk.exists(".export-metadata.json")) {
+        let meta = JSON.parse(fmBk.readString(".export-metadata.json"));
+        if (meta.lastExport) {
+            lastExport = new Date(meta.lastExport);
+        }
+    }
+    let cutoff = lastExport || new Date(Date.now() - 6 * 30 * 24 * 60 * 60 * 1000);
     let draftsGroup = app.currentWorkspace.query("inbox").filter(function(dft) {
-        return dft.modifiedAt >= sixMonthsAgo;
+        return dft.modifiedAt >= cutoff;
     });
 
     // Get the ok
@@ -46,20 +52,10 @@ if (app.currentWindow.isDraftListVisible) {
         console.log("Drafts to process: " + draftsGroup.length);
 
         export_tag = "exported-" + Date.now()
-        let written = 0, skipped = 0;
+        let written = 0;
         draftsGroup.forEach(function(dft) {
             title = export_title(dft);
             filename = title + '.md';
-
-            if (fmBk.exists(filename)) {
-                let fileModDate = fmBk.getModificationDate(filename);
-                let draftSec = Math.floor(dft.modifiedAt.getTime() / 1000);
-                let fileSec = Math.floor(fileModDate.getTime() / 1000);
-                if (draftSec <= fileSec) {
-                    skipped++;
-                    return;
-                }
-            }
 
             fmBk.writeString(filename, dft.content);
             fmBk.setCreationDate(filename, dft.createdAt);
@@ -88,7 +84,7 @@ if (app.currentWindow.isDraftListVisible) {
             countWarning = "\n⚠ File count (" + files.length + ") ≠ draft count (" + allDrafts.length + ")";
         }
 
-        let summary = "Exported " + written + " draft(s), skipped " + skipped + " unchanged.\nElapsed: " + elapsed + countWarning;
+        let summary = "Exported " + written + " draft(s).\nElapsed: " + elapsed + countWarning;
         console.log(summary);
         console.log("Export finished at " + endTime.toLocaleString());
 
@@ -96,7 +92,6 @@ if (app.currentWindow.isDraftListVisible) {
             lastExport: endTime.toISOString(),
             draftsProcessed: draftsGroup.length,
             written: written,
-            skipped: skipped,
             elapsedSeconds: elapsedSec
         };
         fmBk.writeString(".export-metadata.json", JSON.stringify(metadata, null, 2));
