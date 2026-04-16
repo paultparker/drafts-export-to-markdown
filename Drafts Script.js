@@ -70,12 +70,14 @@ if (app.currentWindow.isDraftListVisible) {
             filename = title + '.md';
 
             let content = dft.content;
+            let modifiedAt = dft.modifiedAt;
             if (dft.uuid === editorDraftUUID && editorContent) {
                 content = editorContent;
+                modifiedAt = new Date();
             }
             fmBk.writeString(filename, content);
             fmBk.setCreationDate(filename, dft.createdAt);
-            fmBk.setModificationDate(filename, dft.modifiedAt);
+            fmBk.setModificationDate(filename, modifiedAt);
             written++;
 
             if (tag_when_done) {
