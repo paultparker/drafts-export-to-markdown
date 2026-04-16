@@ -57,13 +57,23 @@ if (app.currentWindow.isDraftListVisible) {
             return /[0-9A-F]{8}\.md$/i.test(f);
         }).length;
 
+        // Capture live editor buffer for the currently-edited draft.
+        // When triggered via URL scheme, dft.content returns the last-saved
+        // state, not the live editor text — this ensures we export the latest.
+        let editorDraftUUID = editor.draft ? editor.draft.uuid : null;
+        let editorContent = (editorDraftUUID && editor.getText()) || null;
+
         export_tag = "exported-" + Date.now()
         let written = 0;
         draftsGroup.forEach(function(dft) {
             title = export_title(dft);
             filename = title + '.md';
 
-            fmBk.writeString(filename, dft.content);
+            let content = dft.content;
+            if (dft.uuid === editorDraftUUID && editorContent) {
+                content = editorContent;
+            }
+            fmBk.writeString(filename, content);
             fmBk.setCreationDate(filename, dft.createdAt);
             fmBk.setModificationDate(filename, dft.modifiedAt);
             written++;
