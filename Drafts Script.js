@@ -16,7 +16,12 @@ function export_title(dft) {
     return words + '-' + uuid8;
 }
 
-if (app.currentWindow.isDraftListVisible) {
+// Silent/automated runs (launchd, Shortcuts) opt in explicitly and must not be
+// gated by window state. Drafts v52 made app.currentWindow.isDraftListVisible
+// return false when the active draft is empty, which silently killed the timed
+// export on 2026-05-29 — bypassing the guard in silent mode restores it while
+// keeping the safety check for interactive runs.
+if (silent || app.currentWindow.isDraftListVisible) {
     let bk = Bookmark.findOrCreate("Export pit")
     let fmBk = FileManager.createForBookmark(bk);
 
