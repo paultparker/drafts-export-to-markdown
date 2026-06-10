@@ -9,7 +9,10 @@ function export_title(dft) {
     if (!safe_title) {
         return uuid8;
     }
-    let words = safe_title.split(/\s+/).slice(0, 4).join('-').toLowerCase().replace(/^\.+/, '');
+    let words = safe_title.split(/\s+/).slice(0, 4).join('-').toLowerCase()
+        .replace(/[()\[\]{}]/g, '')        // strip glob/shell-hostile brackets — talkbox TODO #46
+        .replace(/-+/g, '-')                // collapse dash runs left by removed chars
+        .replace(/^[.\-]+|[.\-]+$/g, '');   // trim leading/trailing dots and dashes
     if (!words) {
         return uuid8;
     }
